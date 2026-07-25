@@ -68,6 +68,70 @@ namespace FallingSanity.Simulation
         public static Point ChunkPosToCellPos(int chunkX, int chunkY) =>
             new Point((chunkX * _chunkSize), (chunkY * _chunkSize));
 
+        public static List<Point> GetAffectedChunkPositionListForCellPos(int cellX, int cellY)
+        {
+            var result = new List<Point>();
+
+            Point chunkPos = CellPosToChunkPos(cellX, cellY);
+            int localX = cellX - chunkPos.X * _chunkSize;
+            int localY = cellY - chunkPos.Y * _chunkSize;
+
+            int edgeDx = localX == 0 ? -1 : (localX == _chunkSize - 1 ? 1 : 0);
+            int edgeDy = localY == 0 ? -1 : (localY == _chunkSize - 1 ? 1 : 0);
+
+            int[] xOffsets = edgeDx == 0 ? new[] { 0 } : new[] { 0, edgeDx };
+            int[] yOffsets = edgeDy == 0 ? new[] { 0 } : new[] { 0, edgeDy };
+
+            foreach (int oy in yOffsets)
+            {
+                foreach (int ox in xOffsets)
+                {
+                    int nx = chunkPos.X + ox;
+                    int ny = chunkPos.Y + oy;
+
+                    if (nx < 0 || ny < 0 || nx >= _chunksHorizontal || ny >= _chunksVertical) continue;
+
+                    result.Add(new Point(nx, ny));
+                }
+            }
+
+            return result;
+        }
+
+        public Point[] GetAffectedChunkPositionArrayForCellPos(int cellX, int cellY)
+        {
+            Point chunkPos = CellPosToChunkPos(cellX, cellY);
+            int localX = cellX - chunkPos.X * _chunkSize;
+            int localY = cellY - chunkPos.Y * _chunkSize;
+
+            int edgeDx = localX == 0 ? -1 : (localX == _chunkSize - 1 ? 1 : 0);
+            int edgeDy = localY == 0 ? -1 : (localY == _chunkSize - 1 ? 1 : 0);
+
+            int[] xOffsets = edgeDx == 0 ? new[] { 0 } : new[] { 0, edgeDx };
+            int[] yOffsets = edgeDy == 0 ? new[] { 0 } : new[] { 0, edgeDy };
+
+            
+            Span<Point> candidates = stackalloc Point[4];
+            int count = 0;
+
+            foreach (int oy in yOffsets)
+            {
+                foreach (int ox in xOffsets)
+                {
+                    int nx = chunkPos.X + ox;
+                    int ny = chunkPos.Y + oy;
+
+                    if (nx < 0 || ny < 0 || nx >= _chunksHorizontal || ny >= _chunksVertical) continue;
+
+                    candidates[count++] = new Point(nx, ny);
+                }
+            }
+
+            var result = new Point[count];
+            for (int i = 0; i < count; i++) result[i] = candidates[i];
+            return result;
+        }
+
         public bool IsChunkActiveCellPos(int cellX, int cellY) => 
             _chunks[ChunkIndexFromCellPos(cellX, cellY)].IsActive ? true : false;
 
@@ -112,6 +176,18 @@ namespace FallingSanity.Simulation
         {
             if (!InBoundsChunkPos(chunkX, chunkY)) return;
             _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)].ActiveNextFrame = true;
+        }
+
+        public void DeactivateChunkFromCellPos(int cellX, int cellY)
+        {
+            if (!_grid.InBounds(cellX, cellY)) return;
+            _chunks[ChunkIndexFromCellPos(cellX, cellY)].IsActive = false;
+        }
+
+        public void DeactivateChunkFromChunkPos(int chunkX, int chunkY)
+        {
+            if (!InBoundsChunkPos(chunkX, chunkY)) return;
+            _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)].IsActive = false;
         }
     }
 }

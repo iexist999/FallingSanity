@@ -40,7 +40,12 @@ namespace FallingSanity.UI
             }
 
             ImGui.Separator();
-            ImGui.Text($"Brush size: {_inputHandler.BrushRadius} (scroll to resize)");
+
+            int brushSize = _inputHandler.BrushRadius;
+            if (ImGui.SliderInt("Brush size", ref brushSize, InputHandler.MinBrushRadius, InputHandler.MaxBrushRadius))
+            {
+                _inputHandler.SetBrushRadius(brushSize);
+            }
 
             ImGui.End();
         }

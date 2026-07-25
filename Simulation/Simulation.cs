@@ -38,6 +38,19 @@ namespace FallingSanity.Simulation
             _renderer = renderer;
         }
 
+        public bool IsPaused { get; set; }
+        private bool _stepRequested;
+
+        public void RequestStep() => _stepRequested = true;
+
+        public void Tick()
+        {
+            if (IsPaused && !_stepRequested) return;
+            Step();
+            _stepRequested = false;
+        }
+
+
         /// <summary>
         /// Advances the world by one tick. Iterates bottom row first so a
         /// cell that falls into an already-processed row isn't moved again
@@ -88,6 +101,7 @@ namespace FallingSanity.Simulation
                 else if (chunks[i].ActiveNextFrame)
                 {
                     chunks[i].IsActive = true;
+                    chunks[i].ActiveNextFrame = false;
                 }
             }
         }
@@ -138,8 +152,8 @@ namespace FallingSanity.Simulation
             // open spot. This is a simplification of real fluid flow (no
             // pressure/volume tracking) but gets most of the visual result.
             const int flowDistance = 4;
-            if (TryFlow(x, y, firstDx, flowDistance)) return;
-            TryFlow(x, y, -firstDx, flowDistance);
+            if (TryFlowX(x, y, firstDx, flowDistance)) return;
+            TryFlowX(x, y, -firstDx, flowDistance);
         }
 
         private void StepGas(int x, int y)
@@ -151,12 +165,21 @@ namespace FallingSanity.Simulation
             TryMoveDirect(x, y, x - firstDx, y - 1);
         }
 
+        private void WakeChunks(int fromX, int fromY, int toX, int toY)
+        {
+            foreach (var p in _chunkManager.GetAffectedChunkPositionArrayForCellPos(fromX, fromY))
+                _chunkManager.MarkDirtyDirectChunkPos(p.X, p.Y);
+
+            foreach (var p in _chunkManager.GetAffectedChunkPositionArrayForCellPos(toX, toY))
+                _chunkManager.MarkDirtyDirectChunkPos(p.X, p.Y);
+        }
+
         /// <summary>
         /// Scans in a straight line for the furthest empty cell and relocates
         /// the mover there directly (a single swap), rather than stepping one
         /// cell at a time.
         /// </summary>
-        private bool TryFlow(int x, int y, int dx, int maxDistance)
+        private bool TryFlowX(int x, int y, int dx, int maxDistance)
         {
             int targetX = x;
             for (int step = 1; step <= maxDistance; step++)

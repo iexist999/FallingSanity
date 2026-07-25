@@ -15,8 +15,8 @@ namespace FallingSanity.Core
     /// </summary>
     public class InputHandler
     {
-        private const int MinBrushRadius = 0;
-        private const int MaxBrushRadius = 24;
+        public const int MinBrushRadius = 0;
+        public const int MaxBrushRadius = 24;
 
         private bool FixDrawGaps = true;
         private bool PixelPerfect = false;
@@ -32,6 +32,8 @@ namespace FallingSanity.Core
         public MaterialType CurrentMaterial => _currentMaterial;
 
         public void SetMaterial(MaterialType material) => _currentMaterial = material;
+        public void SetBrushRadius(int radius) =>
+    _brushRadius = MathHelper.Clamp(radius, MinBrushRadius, MaxBrushRadius);
 
         public InputHandler(Grid grid, WorldRenderer renderer, int brushRadius = 3)
         {

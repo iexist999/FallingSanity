@@ -19,14 +19,22 @@ namespace FallingSanity.Core
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        //Simulation
         private Grid _grid;
         private ChunkManager _chunkManager;
-        private WorldRenderer _worldRenderer;
-        private InputHandler _inputHandler;
         private FallingSanity.Simulation.Simulation _simulation;
+
+        //Rendering
+        private WorldRenderer _worldRenderer;
         private CursorRenderer _brushCursor;
+        private DebugRenderer _debugRenderer;
+
+        //UI
         private ImGuiRenderer _imGuiRenderer;
         private MaterialSelectorUI _materialSelector;
+        private DebugToolsUI _debugToolsUI;
+
+        private InputHandler _inputHandler; //Input
 
         public Game1()
         {
@@ -60,17 +68,20 @@ namespace FallingSanity.Core
 
             _inputHandler = new InputHandler(_grid, _worldRenderer, brushRadius: 3);
             _simulation = new FallingSanity.Simulation.Simulation(_grid, _chunkManager, _worldRenderer);
+
             _brushCursor = new CursorRenderer(GraphicsDevice);
+            _debugRenderer = new DebugRenderer(GraphicsDevice);
 
             _imGuiRenderer = new ImGuiRenderer(this);
             _imGuiRenderer.RebuildFontAtlas();
             _materialSelector = new MaterialSelectorUI(_inputHandler);
+            _debugToolsUI = new DebugToolsUI(_simulation);
         }
 
         protected override void Update(GameTime gameTime)
         {
             _inputHandler.Update();
-            _simulation.Step();
+            _simulation.Tick();
             base.Update(gameTime);
         }
 
@@ -88,10 +99,16 @@ namespace FallingSanity.Core
             float radiusInPixels = _inputHandler.BrushRadius * CellSize;
             _brushCursor.Draw(_spriteBatch, mouse.X, mouse.Y, radiusInPixels, Color.Red);
 
+            if (_debugToolsUI.DrawChunks)
+            {
+                _debugRenderer.Draw(_spriteBatch, _chunkManager, ChunkSize, CellSize);
+            }
+
             _spriteBatch.End();
 
             _imGuiRenderer.BeforeLayout(gameTime);
             _materialSelector.Draw();
+            _debugToolsUI.Draw();
             _imGuiRenderer.AfterLayout();
 
             base.Draw(gameTime);
