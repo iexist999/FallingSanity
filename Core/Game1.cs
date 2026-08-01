@@ -66,7 +66,7 @@ namespace FallingSanity.Core
             _worldRenderer = new WorldRenderer(GraphicsDevice, _grid, CellSize);
             _worldRenderer.Refresh();
 
-            _inputHandler = new InputHandler(_grid, _worldRenderer, brushRadius: 3);
+            _inputHandler = new InputHandler(_grid, _chunkManager, _worldRenderer, brushRadius: 3);
             _simulation = new FallingSanity.Simulation.Simulation(_grid, _chunkManager, _worldRenderer);
 
             _brushCursor = new CursorRenderer(GraphicsDevice);

@@ -22,6 +22,7 @@ namespace FallingSanity.Core
         private bool PixelPerfect = false;
 
         private readonly Grid _grid;
+        private readonly ChunkManager _chunkManager;
         private readonly WorldRenderer _renderer;
 
         private int _brushRadius;
@@ -35,9 +36,10 @@ namespace FallingSanity.Core
         public void SetBrushRadius(int radius) =>
     _brushRadius = MathHelper.Clamp(radius, MinBrushRadius, MaxBrushRadius);
 
-        public InputHandler(Grid grid, WorldRenderer renderer, int brushRadius = 3)
+        public InputHandler(Grid grid, ChunkManager chunkManager, WorldRenderer renderer, int brushRadius = 3)
         {
             _grid = grid;
+            _chunkManager = chunkManager;
             _renderer = renderer;
             _brushRadius = brushRadius;
         }
@@ -153,6 +155,8 @@ namespace FallingSanity.Core
                         var cell = MaterialDatabase.CreateCell(material);
                         _grid.Set(x, y, cell);
                         _renderer.UpdatePixel(x, y, cell);
+
+                        _chunkManager.MarkDirtyDirectCellPos(x, y);
                     }
                 }
             }

@@ -97,6 +97,15 @@ namespace FallingSanity.Simulation
                             StepCell(chunkCellPos.X + col, chunkCellPos.Y + row);
                         }
                     }
+
+                    if (chunks[i].ActiveNextFrame)
+                    {
+                        chunks[i].ActiveNextFrame = false;
+                    }
+                    else
+                    {
+                        chunks[i].IsActive = false;
+                    }
                 }
                 else if (chunks[i].ActiveNextFrame)
                 {
@@ -176,8 +185,7 @@ namespace FallingSanity.Simulation
 
         /// <summary>
         /// Scans in a straight line for the furthest empty cell and relocates
-        /// the mover there directly (a single swap), rather than stepping one
-        /// cell at a time.
+        /// the mover there directly.
         /// </summary>
         private bool TryFlowX(int x, int y, int dx, int maxDistance)
         {
@@ -217,14 +225,16 @@ namespace FallingSanity.Simulation
 
             if (!canDisplace) return false;
 
-            if(!test)
+            if(!test) // execute the move
             {
                 _grid.Set(fromX, fromY, target);
                 _grid.Set(toX, toY, mover);
 
                 _renderer.UpdatePixel(fromX, fromY, target);
                 _renderer.UpdatePixel(toX, toY, mover);
-            }
+
+                WakeChunks(fromX, fromY, toX, toY);
+            } // if test, we only called the function for the output boolean
 
             return true;
         }
