@@ -18,5 +18,7 @@ namespace FallingSanity.Simulation
 
         public bool IsActive { get; set; }
         public bool ActiveNextFrame { get; set; }
+        public float GravityX { get; set; } = 0;
+        public float GravityY { get; set; } = -9.81f;
     }
 }

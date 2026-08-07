@@ -3,10 +3,7 @@
 namespace FallingSanity.Simulation
 {
     /// <summary>
-    /// Per-pixel instance data — what actually lives in the Grid array.
-    /// Kept small and blittable since there will be hundreds of thousands
-    /// of these. Static, shared-per-material data (density, toughness, etc.)
-    /// lives in MaterialDefinition instead; look it up via MaterialId.
+    /// Per-pixel instance data
     /// </summary>
     public struct Cell
     {
@@ -15,11 +12,10 @@ namespace FallingSanity.Simulation
         public Color Color;              // very basic rendering
         public float Temperature;        // temperature
         public float Pressure;           // pressure
+        public Vector2 Velocity;         // velocity
         private bool IsActive { get; set; }
 
-        // Hardcoded (not pulled from MaterialDatabase) so Cell has no static
-        // dependency on MaterialDatabase — avoids a static-init ordering issue.
-        // Keep this color in sync with MaterialDatabase's Empty registration below.
+        // the default atmosphere medium. air by default. make it changeable in the world settings later
         public static readonly Cell Empty = new Cell
         {
             MaterialId = MaterialType.Empty,

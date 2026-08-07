@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FallingSanity.Simulation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +10,10 @@ namespace FallingSanity.Settings
     public static class WorldSettings
     {
         private static float DefaultGravity = 9.8f;
+        private static float GravityMultiplier = 1.0f;
         public static float DefaultTemperature = 20; //c
 
-        public static float GetGravity(int cellX, int cellY) => DefaultGravity;
+        public static float GetDefaultGravity(int cellX, int cellY) => DefaultGravity;
 
         ///the default temperature is not chunk-specific. this applies to the whole world.
         ///temperature is handled per-cell instead and default temperature cannot be changed

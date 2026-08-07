@@ -4,18 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace FallingSanity.Simulation
 {
-    /// <summary>
-    /// Registry of per-material static data (MaterialDefinition), indexed by
-    /// MaterialType. This is the single place that knows what a material
-    /// "is" — Grid, WorldRenderer, and InputHandler never hardcode material
-    /// specifics; they just carry a MaterialType/Cell around and ask this
-    /// class when they need a definition or a freshly-spawned cell.
-    ///
-    /// Dictionary for now since the material list is small and will keep
-    /// changing. Once your list stabilizes, swap to a flat array indexed by
-    /// a compact sequential ID for O(1) lookups instead of hashing — matters
-    /// once a real simulation is reading this every cell, every frame.
-    /// </summary>
+
     public static class MaterialDatabase
     {
         private static readonly Dictionary<MaterialType, MaterialDefinition> _definitions = new();
@@ -25,9 +14,9 @@ namespace FallingSanity.Simulation
         {
             Register(MaterialType.Empty, new MaterialDefinition
             {
-                Name = "Empty",
-                Behavior = MaterialBehavior.Gas,
-                ColorPalette = new[] { new Color(12, 12, 16) },
+                Name = "Air",
+                Behavior = MaterialBehavior.StaticGas,
+                ColorPalette = new[] { new Color(12, 12, 16), new Color(12, 12, 14), new Color(12, 12, 12) },
                 Density = 0f,
                 Toughness = 0f,
                 Conductivity = 0f,
@@ -76,18 +65,12 @@ namespace FallingSanity.Simulation
         public static MaterialDefinition Get(MaterialType type) => _definitions[type];
 
         /// <summary>
-        /// Every material currently registered. Lets UI (or anything else)
-        /// enumerate materials dynamically instead of hardcoding a list —
-        /// register a new material here and it just shows up everywhere.
+        /// all registered materials. lets ui enumerate them
         /// </summary>
         public static IEnumerable<MaterialType> AllMaterials => _definitions.Keys;
 
         /// <summary>
-        /// Builds a brand-new cell of the given material: picks a random
-        /// shade from its palette (so a patch of sand isn't flat-colored),
-        /// sets HP to the material's max, and defaults temperature to ambient.
-        /// This is the ONE place new cells get created — spawning, loading a
-        /// save, anything — so every cell is always consistent with its definition.
+        /// builds a new cell of the given material
         /// </summary>
         public static Cell CreateCell(MaterialType type, byte ambientTemperature = 20)
         {
@@ -95,7 +78,7 @@ namespace FallingSanity.Simulation
             var palette = def.ColorPalette;
             var color = palette != null && palette.Length > 0
                 ? palette[_rng.Next(palette.Length)]
-                : Color.Magenta; // loud fallback so a missing palette is obvious, not invisible
+                : Color.Magenta; // fallback to the missing texture color
 
             return new Cell
             {

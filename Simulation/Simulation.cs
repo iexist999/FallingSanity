@@ -28,7 +28,7 @@ namespace FallingSanity.Simulation
         private readonly WorldRenderer _renderer;
         private readonly Random _rng = new Random();
 
-        // Alternated each tick so nothing systematically drifts left or right.
+        // alternated each tick
         private bool _sweepLeftToRight;
 
         public Simulation(Grid grid, ChunkManager chunkManager, WorldRenderer renderer)
@@ -52,36 +52,18 @@ namespace FallingSanity.Simulation
 
 
         /// <summary>
-        /// Advances the world by one tick. Iterates bottom row first so a
-        /// cell that falls into an already-processed row isn't moved again
-        /// within the same tick.
+        /// advance the simulation
         /// </summary>
         public void Step()
         {
-            /*
-            _sweepLeftToRight = !_sweepLeftToRight;
 
-            for (int y = _grid.Height - 1; y >= 0; y--)
-            {
-                if (_sweepLeftToRight)
-                {
-                    for (int x = 0; x < _grid.Width; x++)
-                        StepCell(x, y);
-                }
-                else
-                {
-                    for (int x = _grid.Width - 1; x >= 0; x--)
-                        StepCell(x, y);
-                }
-            }*/
-
-            //compute the chunks in a checkerboard pattern
             Chunk[] chunks = _chunkManager.GetChunks();
 
             for (int i = 0; i < chunks.Length; i++)
             {
                 Point chunkPos = ChunkManager.ChunkPosFromIndex(i);
 
+                //compute in a checkerboard pattern?
                 //if (((chunkPos.X + chunkPos.Y) % 2) != parity) continue;
 
                 if (chunks[i].IsActive)
@@ -120,25 +102,72 @@ namespace FallingSanity.Simulation
             var cell = _grid.Get(x, y);
             if (cell.MaterialId == MaterialType.Empty) return;
 
-            var def = MaterialDatabase.Get(cell.MaterialId);
+            var matdef = MaterialDatabase.Get(cell.MaterialId);
 
-            switch (def.Behavior)
+            Point startpos = new Point(x, y);
+            Point currentpos = startpos;
+
+            switch (matdef.Behavior)
             {
+                case MaterialBehavior.StaticGas:
+                    return; // no forces for atmosphere (background) element
+
                 case MaterialBehavior.Powder:
                 case MaterialBehavior.Dust:
-                    StepPowder(x, y);
+                    CalcGravity(currentpos, x, y, cell, matdef);
+                    //dest = CalcFriction();
                     break;
+
                 case MaterialBehavior.Liquid:
-                    StepLiquid(x, y);
+                    CalcGravity(currentpos, x, y, cell, matdef);
+                    //dest = CalcPressure();
+                    //dest = CalcFriction();
                     break;
+
                 case MaterialBehavior.Gas:
-                    StepGas(x, y);
+                    //dest = CalcBuoyancy();
                     break;
+
                 case MaterialBehavior.Solid:
-                    break; // never moves on its own
+                    return; 
+            }
+
+            if (currentpos != startpos)
+            {
+                //TryMovePos(x, y, currentpos.X, currentpos.Y, out _, out _);
             }
         }
 
+        /// <summary>
+        /// Calculates gravity for this movement.
+        /// </summary>
+        /// <param name="start">the initial position in this tick step</param>
+        /// <param name="currentX">the current X position of the calculated pixel (element instance)</param>
+        /// <param name="currentY">the current Y position of the calculated pixel (element instance)</param>
+        /// <param name="cell">cell ref of the moved pixel (element instance)</param>
+        /// <param name="matdef">materialdefinition ref of the moved pixel (element instance)</param>
+        private void CalcGravity(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
+        {
+            float positionalGravityX = _chunkManager.GetChunkGravityXFromCellPos(start.X, start.Y);
+            float positionalGravityY = _chunkManager.GetChunkGravityYFromCellPos(start.X, start.Y);
+
+            float velocityInfluenceX = positionalGravityX * matdef.Weight * matdef.GravityInfluence;
+
+            //ex. -9.81f * 0.017 * 1.0 = -0.16677f = velocity will be set to: currentvelocity + (Abs(-0.16677f) * currentvelocity)
+            float velocityInfluenceY = positionalGravityY * matdef.Weight * matdef.GravityInfluence;
+
+            //return new Point(currentX + (int)Math.Round(velocityInfluenceX), currentY + (int)Math.Round(velocityInfluenceY));
+            //set the velocity of the modified cell instead of setting position directly, the velocity pass will calculate total velocity
+
+            cell.Velocity = new Vector2(cell.Velocity.X + velocityInfluenceX, cell.Velocity.Y + velocityInfluenceY);
+        }
+
+        private Point CalcVelocity(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
+        {
+            return new Point(0, 0); // TODO
+        }
+
+        // placeholder step fucntions        
         private void StepPowder(int x, int y)
         {
             //try to move downwards first
@@ -177,16 +206,13 @@ namespace FallingSanity.Simulation
         private void WakeChunks(int fromX, int fromY, int toX, int toY)
         {
             foreach (var p in _chunkManager.GetAffectedChunkPositionArrayForCellPos(fromX, fromY))
-                _chunkManager.MarkDirtyDirectChunkPos(p.X, p.Y);
+                _chunkManager.MarkChunkDirtyDirectChunkPos(p.X, p.Y);
 
             foreach (var p in _chunkManager.GetAffectedChunkPositionArrayForCellPos(toX, toY))
-                _chunkManager.MarkDirtyDirectChunkPos(p.X, p.Y);
+                _chunkManager.MarkChunkDirtyDirectChunkPos(p.X, p.Y);
         }
 
-        /// <summary>
-        /// Scans in a straight line for the furthest empty cell and relocates
-        /// the mover there directly.
-        /// </summary>
+        // placeholder flow function
         private bool TryFlowX(int x, int y, int dx, int maxDistance)
         {
             int targetX = x;
@@ -239,6 +265,19 @@ namespace FallingSanity.Simulation
             return true;
         }
 
+        /// <summary>
+        /// tries to move a cell from one position to another. checks along the path between the starting position and destination pos using DDA
+        /// </summary>
+        /// <param name="fromX">X coordinates of the cell to be moved</param>
+        /// <param name="fromY">Y coordinates of the cell to be moved</param>
+        /// <param name="toX">X coordinates of the end target position cell</param>
+        /// <param name="toY">Y coordinates of the end target position cell</param>
+        /// <param name="endX">the furthest unoccupied X position the pixel has ended its traversal at</param>
+        /// <param name="endY">the furthest unoccupied Y position the pixel has ended its traversal at</param>
+        /// <returns>
+        /// <para><c>true</c> if the target cell is not occupied and the move has succeeded.</para>
+        /// <para><c>false</c> if the target cell is currently occupied and the move has failed.</para>
+        /// </returns>
         private bool TryMoveToPosition(int fromX, int fromY, int toX, int toY, out int endX, out int endY)
         {
             endX = fromX;

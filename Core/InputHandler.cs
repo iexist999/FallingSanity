@@ -156,7 +156,7 @@ namespace FallingSanity.Core
                         _grid.Set(x, y, cell);
                         _renderer.UpdatePixel(x, y, cell);
 
-                        _chunkManager.MarkDirtyDirectCellPos(x, y);
+                        _chunkManager.MarkChunkDirtyDirectCellPos(x, y);
                     }
                 }
             }

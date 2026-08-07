@@ -1,10 +1,6 @@
 ﻿namespace FallingSanity.Simulation
 {
-    /// <summary>
-    /// Pure data container for the world: one Cell per cell, flat-packed
-    /// for cache locality. No simulation logic lives here — that comes
-    /// later as a Simulation class that reads and writes this grid.
-    /// </summary>
+
     public class Grid
     {
         public int Width { get; }

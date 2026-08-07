@@ -91,7 +91,6 @@ namespace FallingSanity.Core
 
             _worldRenderer.Flush();
 
-            // PointClamp keeps the upscaled pixels crisp instead of blurry.
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             _worldRenderer.Draw(_spriteBatch);
 

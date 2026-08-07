@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FallingSanity.Core;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +23,8 @@ namespace FallingSanity.Simulation
         {
             _grid = grid;
             _chunkSize = chunkSize;
-            //calculate the total amount of chunks vertically and horizonstally
-            //based on height and width of the world grid
+            // calculate the total amount of chunks vertically and horizonstally
+            // based on height and width of the world grid
             _chunksHorizontal = (gridWidth + chunkSize - 1) / chunkSize;
             _chunksVertical = (gridHeight + chunkSize - 1) / chunkSize; //round up
             _chunks = new Chunk[_chunksHorizontal * _chunksVertical];
@@ -132,6 +133,26 @@ namespace FallingSanity.Simulation
             return result;
         }
 
+        public Chunk ChunkFromChunkPos(int chunkX, int chunkY)
+        {
+            return _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)];
+        }
+
+        public Chunk ChunkFromCellPos(int cellX, int cellY)
+        {
+            return _chunks[ChunkIndexFromCellPos(cellX, cellY)];
+        }
+
+        public float GetChunkGravityXFromChunkPos(int chunkX, int chunkY) =>
+            _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)].GravityX;
+        public float GetChunkGravityYFromChunkPos(int chunkX, int chunkY) =>
+            _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)].GravityY;
+
+        public float GetChunkGravityXFromCellPos(int cellX, int cellY) =>
+            _chunks[ChunkIndexFromCellPos(cellX, cellY)].GravityX;
+        public float GetChunkGravityYFromCellPos(int cellX, int cellY) =>
+            _chunks[ChunkIndexFromCellPos(cellX, cellY)].GravityY;
+
         public bool IsChunkActiveCellPos(int cellX, int cellY) => 
             _chunks[ChunkIndexFromCellPos(cellX, cellY)].IsActive ? true : false;
 
@@ -166,13 +187,13 @@ namespace FallingSanity.Simulation
             }
         }
 
-        public void MarkDirtyDirectCellPos(int cellX, int cellY)
+        public void MarkChunkDirtyDirectCellPos(int cellX, int cellY)
         {
             if (!_grid.InBounds(cellX, cellY)) return;
             _chunks[ChunkIndexFromCellPos(cellX, cellY)].ActiveNextFrame = true;
         }
 
-        public void MarkDirtyDirectChunkPos(int chunkX, int chunkY)
+        public void MarkChunkDirtyDirectChunkPos(int chunkX, int chunkY)
         {
             if (!InBoundsChunkPos(chunkX, chunkY)) return;
             _chunks[ChunkIndexFromChunkPos(chunkX, chunkY)].ActiveNextFrame = true;

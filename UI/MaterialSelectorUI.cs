@@ -6,10 +6,7 @@ using ImGuiNET;
 namespace FallingSanity.UI
 {
     /// <summary>
-    /// A Dear ImGui panel for picking the active material with the mouse
-    /// instead of memorizing number keys. Reads the list straight from
-    /// MaterialDatabase, so registering a new material makes it show up
-    /// here automatically — this file never needs to change.
+    /// dear-imgui ui
     /// </summary>
     public class MaterialSelectorUI
     {
@@ -20,7 +17,7 @@ namespace FallingSanity.UI
             _inputHandler = inputHandler;
         }
 
-        /// <summary>Call once per frame, between ImGuiRenderer.BeforeLayout/AfterLayout.</summary>
+        /// <summary>call once per frame</summary>
         public void Draw()
         {
             ImGui.SetNextWindowPos(new Vector2(10, 10), ImGuiCond.FirstUseEver);
@@ -28,7 +25,7 @@ namespace FallingSanity.UI
 
             foreach (var type in MaterialDatabase.AllMaterials)
             {
-                if (type == MaterialType.Empty) continue; // not something you paint with
+                if (type == MaterialType.Empty) continue;
 
                 var definition = MaterialDatabase.Get(type);
                 bool isSelected = _inputHandler.CurrentMaterial == type;

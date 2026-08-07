@@ -10,7 +10,6 @@ namespace FallingSanity.Util
     public static class GridHelper
     {
         // 2D VECTOR CELL TRAVERSAL
-
         public static Point[] GetLineTraversalPositionsDDA(int startX, int startY, int endX, int endY)
         {
             float xLength, yLength;
