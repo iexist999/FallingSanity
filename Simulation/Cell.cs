@@ -13,6 +13,7 @@ namespace FallingSanity.Simulation
         public float Temperature;        // temperature
         public float Pressure;           // pressure
         public Vector2 Velocity;         // velocity
+        public Vector2 KineticEnergy;    // kinetic energy
         private bool IsActive { get; set; }
 
         // the default atmosphere medium. air by default. make it changeable in the world settings later
