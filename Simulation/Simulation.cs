@@ -163,6 +163,14 @@ namespace FallingSanity.Simulation
         }
 
         private Point CalcVelocity(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
+        {//i wanna die
+            Point desiredVelocityPos = new Point(currentX + (int)Math.Round(cell.Velocity.X), currentY + (int)Math.Round(cell.Velocity.Y));
+            Point[] velocityPathTraversal = GridHelper.GetLineTraversalPositionsDDA(currentX, currentY, desiredVelocityPos.X, desiredVelocityPos.Y);
+            Point finalVelocityPos = velocityPathTraversal[velocityPathTraversal.Length - 1];
+            return new Point(0, 0); // TODO
+        }
+
+        private Point CalcFriction(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
         {
             return new Point(0, 0); // TODO
         }
