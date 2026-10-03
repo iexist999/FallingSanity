@@ -115,6 +115,7 @@ namespace FallingSanity.Simulation
                 case MaterialBehavior.Powder:
                 case MaterialBehavior.Dust:
                     CalcGravity(currentpos, x, y, cell, matdef);
+                    CalcVelocity(currentpos, x, y, cell, matdef);
                     //dest = CalcFriction();
                     break;
 
@@ -163,6 +164,7 @@ namespace FallingSanity.Simulation
         }
 
         private Point CalcVelocity(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
+
         {
             // first, define the desired position where the pixel wants to move based on its velocity.
             Point desiredVelocityPos = new Point(currentX + (int)Math.Round(cell.Velocity.X), currentY + (int)Math.Round(cell.Velocity.Y));
@@ -174,6 +176,16 @@ namespace FallingSanity.Simulation
 
         private Point CalcFriction(Point start, int currentX, int currentY, Cell cell, MaterialDefinition matdef)
         {
+            if (!SimulationSettings.CalculateFrictionForAllInTraversal)
+            {
+                /// only calculate friction using neighbouring cells in the current position.
+                /// ignore velocity and all the cells the pixel would have traveled this frame.
+            }
+            else if (SimulationSettings.CalculateFrictionForAllInTraversal)
+            {
+
+            }
+
             return new Point(0, 0); // TODO
         }
 

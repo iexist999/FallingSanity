@@ -511,19 +511,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {}
+    "C:\\Users\\iexist\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\FallingSanity\\FallingSanity.csproj",
+      "projectUniqueName": "C:\\Users\\iexist\\Documents\\GitHub\\FallingSanity\\FallingSanity.csproj",
       "projectName": "FallingSanity",
-      "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\FallingSanity\\FallingSanity.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\FallingSanity\\obj\\",
+      "projectPath": "C:\\Users\\iexist\\Documents\\GitHub\\FallingSanity\\FallingSanity.csproj",
+      "packagesPath": "C:\\Users\\iexist\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\iexist\\Documents\\GitHub\\FallingSanity\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\iexist\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -531,7 +531,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Users\\Admin\\source\\repos\\dslaunch\\externalpackages": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -585,7 +584,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
